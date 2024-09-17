@@ -1,0 +1,33 @@
+#include <stdio.h>
+#include <ctype.h>
+
+void encrypt(char *text, int k) {
+    for (int i = 0; text[i] != '\0'; i++) {
+        if (isalpha(text[i])) {
+            char base = isupper(text[i]) ? 'A' : 'a';
+            text[i] = (text[i] - base + k) % 26 + base;
+        }
+    }
+}
+
+int main() {
+    char text[100];
+    int k;
+
+    printf("Enter the text to be encrypted: ");
+    fgets(text, sizeof(text), stdin);
+
+    printf("Enter the key (1-25): ");
+    scanf("%d", &k);
+
+    if (k < 1 || k > 25) {
+        printf("Invalid key. Please enter a key between 1 and 25.\n");
+        return 1;
+    }
+
+    encrypt(text, k);
+
+    printf("Encrypted text: %s\n", text);
+
+    return 0;
+}

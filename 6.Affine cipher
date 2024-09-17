@@ -1,0 +1,38 @@
+#include <stdio.h>
+#include <ctype.h>
+
+// Function to calculate the modular multiplicative inverse of a modulo m
+int modInverse(int a, int m) {
+    a = a % m;
+    for (int x = 1; x < m; x++) {
+        if ((a * x) % m == 1) {
+            return x;
+        }
+    }
+    return 1;
+}
+
+// Function to decrypt affine cipher given ciphertext, and assumed values of a and b
+void decryptAffine(char *ciphertext, int a, int b) {
+    int a_inv = modInverse(a, 26);
+    for (int i = 0; ciphertext[i] != '\0'; i++) {
+        if (isalpha(ciphertext[i])) {
+            int y = toupper(ciphertext[i]) - 'A';
+            int x = (a_inv * (y - b + 26)) % 26;
+            printf("%c", x + 'A');
+        } else {
+            printf("%c", ciphertext[i]);
+        }
+    }
+    printf("\n");
+}
+
+int main() {
+    char ciphertext[] = "YOUR CIPHERTEXT HERE";
+    int a, b;
+    a = 7; // Assumed value based on 'B' -> 'E'
+    b = 19; // Assumed value based on 'U' -> 'T'
+
+    decryptAffine(ciphertext, a, b);
+    return 0;
+}
