@@ -1,0 +1,64 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <time.h>
+
+#define ALPHABET_SIZE 26
+
+// Function to generate random key values between 0 and 26
+void generateRandomKey(int key[], int length) {
+    srand(time(NULL)); // Seed random number generator with current time
+    for (int i = 0; i < length; ++i) {
+        key[i] = rand() % ALPHABET_SIZE; // Generate random number between 0 and 25
+    }
+}
+
+// Function to encrypt plaintext using one-time pad Vigenère cipher
+void encrypt(char plaintext[], int key[], char ciphertext[]) {
+    int keyLength = strlen(plaintext);
+    for (int i = 0; i < keyLength; ++i) {
+        char ch = plaintext[i];
+        if (isalpha(ch)) {
+            // Determine shift amount based on key
+            int shift = key[i];
+            // Determine if character is uppercase or lowercase
+            if (isupper(ch)) {
+                ciphertext[i] = 'A' + (ch - 'A' + shift) % ALPHABET_SIZE;
+            } else {
+                ciphertext[i] = 'a' + (ch - 'a' + shift) % ALPHABET_SIZE;
+            }
+        } else {
+            // Non-alphabetic characters remain unchanged
+            ciphertext[i] = ch;
+        }
+    }
+    ciphertext[keyLength] = '\0'; // Add null terminator to end the string
+}
+
+int main() {
+    char plaintext[] = "Hello, World!";
+    int plaintextLength = strlen(plaintext);
+    int key[plaintextLength];
+    char ciphertext[plaintextLength + 1]; // +1 for null terminator
+    
+    // Generate random key
+    generateRandomKey(key, plaintextLength);
+    
+    // Encrypt plaintext using the generated key
+    encrypt(plaintext, key, ciphertext);
+    
+    // Print the results
+    printf("Plaintext:  %s\n", plaintext);
+    printf("Key:        ");
+    for (int i = 0; i < plaintextLength; ++i) {
+        printf("%d ", key[i]);
+    }
+    printf("\n");
+    printf("Ciphertext: %s\n", ciphertext);
+    
+    return 0;
+}
+Output :
+Enter the plaintext: meghana srinivas
+Generated key: 26 16 18 8 0 18 19 16 7 12 23 11 12 22 16 20
+Ciphertext: muypaft zdfyurqm
