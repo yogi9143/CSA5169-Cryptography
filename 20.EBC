@@ -1,0 +1,50 @@
+#include <stdio.h>
+#include <string.h>
+#include <openssl/des.h>
+
+void handleErrors(void) {
+    fprintf(stderr, "An error occurred\n");
+    exit(1);
+}
+
+int main(void) {
+    // Key for DES
+    DES_cblock key;
+    DES_key_schedule schedule;
+
+    // Initialize key with a predefined value
+    // Normally you should use a random key or a secure key exchange
+    memset(key, 0x01, sizeof(DES_cblock));
+
+    if (DES_set_key_checked(&key, &schedule) != 0) {
+        handleErrors();
+    }
+
+    // Plaintext
+    unsigned char plaintext[] = "This is a test message for DES encryption in ECB mode.";
+    unsigned char ciphertext[BUFSIZE];
+    unsigned char decryptedtext[BUFSIZE];
+
+    int num_blocks = (strlen((char *)plaintext) + 7) / 8;  // Number of 8-byte blocks
+    printf("Number of 8-byte blocks: %d\n", num_blocks);
+
+    // Encryption
+    for (int i = 0; i < num_blocks; i++) {
+        DES_ecb_encrypt((DES_cblock *)(plaintext + i * 8), (DES_cblock *)(ciphertext + i * 8), &schedule, DES_ENCRYPT);
+    }
+
+    printf("Ciphertext:\n");
+    for (int i = 0; i < num_blocks * 8; i++) {
+        printf("%02x", ciphertext[i]);
+    }
+    printf("\n");
+
+    // Decryption
+    for (int i = 0; i < num_blocks; i++) {
+        DES_ecb_encrypt((DES_cblock *)(ciphertext + i * 8), (DES_cblock *)(decryptedtext + i * 8), &schedule, DES_DECRYPT);
+    }
+
+    printf("Decrypted text: %s\n", decryptedtext);
+
+    return 0;
+}
