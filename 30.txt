@@ -1,0 +1,55 @@
+
+#include <stdio.h>
+#include <string.h>
+#include <openssl/des.h>
+#include <openssl/rand.h>
+
+#define BUFSIZE 512
+
+void handleErrors(void) {
+    ERR_print_errors_fp(stderr);
+    abort();
+}
+
+int main(void) {
+    // Key and IV
+    DES_cblock key1, key2, key3;
+    DES_key_schedule ks1, ks2, ks3;
+    DES_cblock ivec;
+    
+    // Initialize keys and IV with random values
+    if (!RAND_bytes((unsigned char *)&key1, sizeof(DES_cblock)) ||
+        !RAND_bytes((unsigned char *)&key2, sizeof(DES_cblock)) ||
+        !RAND_bytes((unsigned char *)&key3, sizeof(DES_cblock)) ||
+        !RAND_bytes((unsigned char *)&ivec, sizeof(DES_cblock))) {
+        handleErrors();
+    }
+    
+    // Set the key schedule
+    DES_set_key_unchecked(&key1, &ks1);
+    DES_set_key_unchecked(&key2, &ks2);
+    DES_set_key_unchecked(&key3, &ks3);
+    
+    // Plaintext
+    unsigned char plaintext[] = "This is a test message for Triple DES encryption in CBC mode.";
+    unsigned char ciphertext[BUFSIZE];
+    unsigned char decryptedtext[BUFSIZE];
+    
+    // Encryption
+    int num = 0;
+    DES_ede3_cbc_encrypt(plaintext, ciphertext, strlen((char *)plaintext) + 1, &ks1, &ks2, &ks3, &ivec, DES_ENCRYPT);
+    
+    printf("Ciphertext:\n");
+    for (int i = 0; i < strlen((char *)plaintext) + 1; i++) {
+        printf("%02x", ciphertext[i]);
+    }
+    printf("\n");
+    
+    // Decrypt
+    memset(ivec, 0, sizeof(ivec)); // Reset IV (important)
+    DES_ede3_cbc_encrypt(ciphertext, decryptedtext, strlen((char *)plaintext) + 1, &ks1, &ks2, &ks3, &ivec, DES_DECRYPT);
+    
+    printf("Decrypted text: %s\n", decryptedtext);
+    
+    return 0;
+}
